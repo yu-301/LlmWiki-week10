@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>假基地台 30 年</title>
+<meta name="description" content="給初學者的第二份簡報：假基地台為什麼修了 30 年？（內容全部取自本專案 LLM Wiki）">
+<style>
+:root{
+  --bg:#0d1b2a; --panel:#13263a; --panel2:#1b3350; --ink:#eef3f8; --muted:#9fb3c8;
+  --accent:#4cc9f0; --good:#5ad19a; --warn:#ffb84d; --bad:#ff6b6b; --line:#2b4a6b;
+  --font:"Noto Sans TC","Microsoft JhengHei","PingFang TC","Heiti TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);overflow:hidden}
+#viewport{position:fixed;top:0;left:0;right:0;bottom:44px;display:flex;align-items:center;justify-content:center}
+#deck{width:1280px;height:720px;position:relative;transform-origin:center center}
+.slide{position:absolute;inset:0;padding:56px 72px 64px;display:none;flex-direction:column;background:linear-gradient(160deg,#0f2236 0%,#0d1b2a 70%);border-radius:6px}
+.slide.active{display:flex;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.kicker{font-size:18px;letter-spacing:.12em;color:var(--accent);font-weight:700;margin-bottom:10px}
+h1{font-size:46px;line-height:1.25;margin-bottom:22px}
+h2{font-size:24px;color:var(--accent);margin:6px 0 10px}
+p,li{font-size:22px;line-height:1.6}
+ul{padding-left:1.2em}
+li{margin:4px 0}
+b,strong{color:#fff}
+.muted{color:var(--muted)}
+.small{font-size:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:1}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.card h3{font-size:22px;margin-bottom:8px}
+.card p,.card li{font-size:19px;line-height:1.5}
+.tag{display:inline-block;font-size:15px;padding:2px 10px;border-radius:999px;background:var(--panel2);color:var(--muted);margin-right:6px}
+.good{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.callout{border-left:5px solid var(--accent);background:var(--panel);padding:12px 18px;border-radius:0 10px 10px 0;margin-top:14px}
+.callout.warn{border-color:var(--warn)} .callout.bad{border-color:var(--bad)} .callout.good{border-color:var(--good)}
+.flow{display:flex;align-items:stretch;gap:10px;margin:10px 0}
+.flow .step{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:18px;line-height:1.45}
+.flow .arrow{align-self:center;color:var(--accent);font-size:26px}
+.step b{display:block;font-size:19px;margin-bottom:4px;color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:18px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;line-height:1.45}
+th{color:var(--accent);font-weight:700}
+.idbox{display:flex;font-family:Consolas,monospace;font-size:26px;margin:10px 0 6px}
+.idbox span{padding:10px 16px;border:2px solid var(--line)}
+.idbox .clear{background:#1f3b57}
+.idbox .enc{background:#3a2240;color:#ffc6e0}
+.tree{font-family:Consolas,"Noto Sans TC",monospace;font-size:19px;line-height:1.55;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;white-space:pre}
+.src{position:absolute;left:72px;right:72px;bottom:20px;font-size:15px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px;display:flex;justify-content:space-between;gap:20px}
+.src .pages code{color:#cfe8ff;background:var(--panel2);padding:1px 6px;border-radius:4px;margin-right:4px;font-size:14px}
+.cover{justify-content:center}
+.cover h1{font-size:60px}
+.pill-row{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:10px 22px;font-size:22px}
+.section-tag{position:absolute;top:22px;right:72px;font-size:15px;color:var(--muted);letter-spacing:.08em}
+#ui{position:fixed;bottom:10px;right:14px;display:flex;gap:8px;align-items:center;z-index:5;font-family:var(--font)}
+#ui button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:16px;cursor:pointer}
+#ui button:hover{border-color:var(--accent)}
+#ui a{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:16px;text-decoration:none}
+#ui a:hover{border-color:var(--accent)}
+#counter{color:var(--muted);font-size:15px;min-width:56px;text-align:center}
+#progress{position:fixed;top:0;left:0;height:4px;background:var(--accent);transition:width .3s;z-index:5}
+#hint{position:fixed;bottom:12px;left:14px;color:var(--muted);font-size:13px;z-index:5}
+@media (max-width:700px){#hint{display:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="viewport"><div id="deck">
+<!-- 1 封面 -->
+<section class="slide cover" data-title="封面">
+  <div class="kicker">第二份 · 延伸自〈5G 怎麼保護你的身分與連線安全〉</div>
+  <h1>假基地台：<br>為什麼這個問題修了 30 年？</h1>
+  <p class="muted">上一份我們看到 5G 把身分藏起來、讓電信商拍板。這一份要追問：那假基地台為什麼還沒絕跡？</p>
+  <div class="pill-row">
+    <span class="pill">🔍 空窗到底在哪裡</span>
+    <span class="pill">🧰 攻擊者的進階工具箱</span>
+    <span class="pill">🧱 為什麼修不好</span>
+    <span class="pill">🔭 下一步</span>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code></span><span>← → 鍵切換</span></div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="只解了一半">
+  <div class="section-tag">一、重新定義問題</div>
+  <div class="kicker">PART 1 · REFRAME</div>
+  <h1>上一份的答案，只解了一半</h1>
+  <div class="grid3">
+    <div class="card"><h3 class="good">✅ 你是誰</h3><p>SUCI 用電信商公鑰把身分加密，假基地台拿不到永久身分。</p></div>
+    <div class="card"><h3 class="good">✅ 核心網是不是真的</h3><p>5G-AKA 雙向認證＋Home Control，假基地台無法偽造認證成功。</p></div>
+    <div class="card"><h3 class="bad">❌ 這個基地台是不是真的</h3><p>5G <b>沒有</b>在建立安全上下文之前認證「這個細胞」。SUCI 與 Home Control 都管不到這一層。</p></div>
+  </div>
+  <div class="callout warn">
+    <p><b>所以在 5G 裡，假基地台仍然可以：</b>送出 Identity Request、送出 RRCReject、蒐集裝置能力資訊，或觸發降級。</p>
+  </div>
+  <p class="muted small" style="margin-top:10px">只要這個空窗存在，覆蓋攻擊就有落腳點——這一份要講的就是這一半。</p>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>SUCI</code><code>5G-AKA</code></span><span>2</span></div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="病根">
+  <div class="section-tag">一、重新定義問題</div>
+  <div class="kicker">PART 1 · REFRAME</div>
+  <h1>病根：2G 從沒想過要驗證基地台</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>2G 的認證只有四步</h3>
+      <ol style="padding-left:1.3em">
+        <li>手機 → 網路：IMSI</li>
+        <li>網路 → SIM：隨機挑戰 RAND</li>
+        <li>SIM → 網路：回應 SRES</li>
+        <li>網路比對，完成</li>
+      </ol>
+      <p class="small warn" style="margin-top:8px">手機從頭到尾<b>沒有驗證過網路</b>——這就是假基地台能存在的根本原因。</p>
+    </div>
+    <div class="card">
+      <h3>從假基地台的角度看演進</h3>
+      <table>
+        <tr><th>世代</th><th>假基地台少了什麼能力</th></tr>
+        <tr><td>2G</td><td>什麼都不少：網路可被冒充，IMSI 明文</td></tr>
+        <tr><td>3G</td><td>手機開始驗證網路，冒充網路變難；但 IMSI 仍在初次連線明文</td></tr>
+        <tr><td>4G</td><td>金鑰分層；IMSI 仍明文、認證由拜訪網路判定</td></tr>
+        <tr><td>5G</td><td>拿不到永久身分、偽造不了認證成功；<span class="bad">連線前的訊息仍未保護</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>Cellular-Generations-Security</code><code>SUCI</code><code>False-Base-Station-Defenses</code></span><span>3</span></div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="安全分階段打開">
+  <div class="section-tag">二、解剖空窗</div>
+  <div class="kicker">PART 2 · THE GAP</div>
+  <h1>安全是「分階段」打開的</h1>
+  <table>
+    <tr><th style="width:9%">階段</th><th style="width:30%">發生什麼事</th><th>保護狀態</th></tr>
+    <tr><td>0</td><td>同步、讀基地台廣播（SSB／MIB／SIB）</td><td class="bad">無任何保護</td></tr>
+    <tr><td>1</td><td>隨機存取與建立 RRC 連線（Msg1～Msg5）</td><td class="bad">無任何保護</td></tr>
+    <tr><td>2</td><td>5G-AKA 認證＋NAS 安全模式命令</td><td class="warn">NAS 受保護；手機↔基地台的 RRC 訊令<b>仍是明文</b></td></tr>
+    <tr><td>3</td><td>基地台發動 AS 安全模式命令</td><td class="good">RRC 訊令開始受保護</td></tr>
+    <tr><td>4</td><td>建立資料承載</td><td class="good">使用者資料受保護（完整性依營運商政策）</td></tr>
+  </table>
+  <div class="callout warn"><p class="small"><b>最容易被忽略的是階段 2：</b>手機已經確認「核心網是真的」，但它和基地台之間的 RRC 訊令還沒有保護。攻擊者冒充不了核心網，卻仍可在無線層注入偽造的 RRC 訊息（例如假的 RRCReject）、干擾排程，或發動訊號覆蓋。</p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>NAS-vs-AS-Security</code><code>Security-Mode-Command</code></span><span>4</span></div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="不能 vs 選擇不">
+  <div class="section-tag">二、解剖空窗</div>
+  <div class="kicker">PART 2 · THE GAP</div>
+  <h1>「不能保護」vs「選擇不保護」</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3 class="bad">結構性：目前的協定設計無法保護（9 類）</h3>
+      <ul class="small">
+        <li>同步訊號 SSB、廣播 MIB、SIB1 與其他 SIB</li>
+        <li>呼叫訊息 Paging</li>
+        <li>隨機存取 Msg1、Msg2</li>
+        <li>RRCSetupRequest／Reject</li>
+        <li>MAC 控制元素（MAC CE）</li>
+        <li>下行控制資訊（DCI）</li>
+        <li>參考訊號、波束管理回報</li>
+      </ul>
+      <p class="small muted" style="margin-top:6px">共同原因：接收端還沒有任何金鑰，或訊息太短、太頻繁。</p>
+    </div>
+    <div class="card">
+      <h3 class="warn">政策性：可以保護，但選擇不開（1 類）</h3>
+      <p>使用者資料的完整性保護設為 <b>not needed</b>。</p>
+      <p class="small" style="margin-top:8px">規格已經提供機制，是否啟用取決於營運商——後果是位元翻轉竄改。</p>
+      <div class="callout" style="margin-top:14px"><p class="small">分清楚兩者很重要：結構性的洞要改協定才補得起來；政策性的洞，營運商打開就有。</p></div>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>User-Plane-Integrity</code></span><span>5</span></div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="塞不下保護">
+  <div class="section-tag">二、解剖空窗</div>
+  <div class="kicker">PART 2 · THE GAP</div>
+  <h1>為什麼低層訊息塞不下保護？</h1>
+  <div class="grid3">
+    <div class="card"><h3>📻 MIB</h3><p class="small">承載在實體廣播通道上，欄位極端精簡，完全塞不下數位簽章或 MAC。</p></div>
+    <div class="card"><h3>🧩 MAC CE</h3><p class="small">格式只有 1～2 bytes、生命週期極短，放不下 32-bit 的完整性標籤。</p></div>
+    <div class="card"><h3>⏱️ DCI</h3><p class="small">每個時槽都要解碼，再加密碼標籤會造成極高的排程開銷。</p></div>
+  </div>
+  <div class="callout bad">
+    <p class="small"><b>而且洞會越來越多：功能下移的趨勢。</b> 5G 不斷把功能從高層搬到低層換取更低延遲，但保護機制仍留在 PDCP。最新例子是 <b>LTM</b>：換基地台改由 MAC CE 觸發，毫秒級完成——每一次下移都可能製造新的、未受保護的控制面。</p>
+  </div>
+  <p class="small muted" style="margin-top:10px">課堂提問：要幫 MAC CE 加完整性保護，會遇到什麼困難？提示：只有 1～2 bytes、MAC 層沒有 COUNT 計數器、HARQ 重傳會讓同一則訊息出現多次。</p>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>Air-Interface-Security</code></span><span>6</span></div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="訊號覆蓋">
+  <div class="section-tag">三、攻擊工具箱</div>
+  <div class="kicker">PART 3 · TOOLKIT</div>
+  <h1>不必架假基地台：訊號覆蓋攻擊</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>傳統假基地台</h3>
+      <p class="small">架一台發射功率高於周邊合法基地台的設備，手機就會主動接入。</p>
+      <p class="small warn" style="margin-top:8px">會留下明顯的「異常細胞」。</p>
+    </div>
+    <div class="card">
+      <h3>訊號覆蓋（Overshadowing）</h3>
+      <p class="small">不架完整細胞，而是精準對齊時序與頻率，用<b>略高的功率</b>只蓋掉合法細胞的<b>特定訊息</b>，讓手機解出攻擊者的版本。</p>
+      <p class="small bad" style="margin-top:8px">合法細胞仍在正常運作，傳統「偵測異常細胞」的方法看不到它。</p>
+    </div>
+  </div>
+  <div class="callout"><p class="small"><b>在 5G 獨立組網中仍可被覆蓋的訊息：</b>廣播（MIB／SIB）、Paging、RRC 連線建立初期的訊息，以及未受保護的 RRCReject——足以誘導手機放棄連線或轉向惡意載波。</p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>4G-vs-5G-AKA</code></span><span>7</span></div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="降級四型">
+  <div class="section-tag">三、攻擊工具箱</div>
+  <div class="kicker">PART 3 · TOOLKIT</div>
+  <h1>降級攻擊四型，只有一型被完全防住</h1>
+  <table>
+    <tr><th style="width:18%">類型</th><th style="width:42%">攻擊方式</th><th>現況</th></tr>
+    <tr><td>跨世代降級</td><td>只廣播 4G/3G 細胞，或把 5G 細胞標成「禁止接入」，逼手機退回沒有 SUCI 的舊制式</td><td class="warn">可開「僅 5G」模式，但多數預設不開；網路移除舊制式因涵蓋率難落實</td></tr>
+    <tr><td>演算法降級</td><td>竄改手機宣告的能力，讓網路以為它只支援 NEA0／NIA0</td><td class="good">★ 已被防住：安全模式命令原封重播能力清單，並受完整性保護</td></tr>
+    <tr><td>資料保護降級</td><td>誘導不啟用使用者資料完整性保護</td><td class="warn">政策設為 required 時會拒絕連線；設為 preferred／not needed 則本來就沒保護可降</td></tr>
+    <tr><td>偽造拒絕訊息</td><td>偽造 RRCReject、RegistrationReject，讓手機以為此網路不能用而轉向</td><td class="bad">部分原因值已要求受保護，但初始階段的 reject 本質上仍無法保護</td></tr>
+  </table>
+  <p class="small muted" style="margin-top:12px">演算法降級是唯一「已被完整防住」的一類，其餘三類都還有結構性缺口。</p>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>Security-Mode-Command</code></span><span>8</span></div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="側門">
+  <div class="section-tag">三、攻擊工具箱</div>
+  <div class="kicker">PART 3 · TOOLKIT</div>
+  <h1>身分還是會從側門漏出去</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>側門 ①：不換的暫時識別碼</h3>
+      <p class="small">手機待機時只在固定的「呼叫時機」醒來，這個時機由識別碼<b>用公開公式算出</b>。連線建立初期的 RRCSetupRequest 也可能明文帶著 5G-S-TMSI。</p>
+      <p class="small warn" style="margin-top:8px">若營運商不頻繁更換暫時識別碼，它就成了穩定的追蹤標籤——把 SUCI 辛苦保護的隱私，從另一個管道漏掉。</p>
+    </div>
+    <div class="card">
+      <h3>側門 ②：AKA 的兩種失敗訊息</h3>
+      <p class="small">攻擊者重放錄下的（RAND, AUTN）：目標手機回「<b>同步失敗</b>」，其他手機回「<b>MAC 失敗</b>」——光看錯誤種類，就能判斷目標在不在場。</p>
+      <p class="small warn" style="margin-top:8px">SUCI 保護了「你是誰」，但沒有完全保護「你是不是同一個人」。</p>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>5G-AKA</code></span><span>9</span></div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="最底層的攻擊">
+  <div class="section-tag">三、攻擊工具箱</div>
+  <div class="kicker">PART 3 · TOOLKIT</div>
+  <h1>最底層的攻擊：不加密也沒完整性</h1>
+  <table>
+    <tr><th style="width:22%">程序</th><th style="width:56%">可被怎麼利用</th><th>影響</th></tr>
+    <tr><td>隨機存取</td><td>被動觀察推算位置；偽造 SIB 阻擋接入；偽造 PDCCH order 強制斷線重連</td><td>定位、拒絕服務</td></tr>
+    <tr><td>下行控制資訊（DCI）</td><td>偽造上行授權逼手機送填充資料，形成「誘發式干擾」，大幅壓低合法傳輸吞吐量</td><td>拒絕服務、耗電</td></tr>
+    <tr><td>MAC 控制元素</td><td>偽造次細胞啟用命令，逼手機長時間開著多個載波的射頻鏈路</td><td>耗電</td></tr>
+    <tr><td>參考訊號與波束回報</td><td>被動側錄即可做到達時間差定位與移動軌跡推斷</td><td>被動追蹤</td></tr>
+  </table>
+  <div class="callout bad"><p class="small"><b>被動攻擊最可怕：完全無法偵測。</b>攻擊者只需要一台接收機、不發射任何訊號；主動攻擊才會留下無線足跡，所以網路端偵測是目前最實際的防線。</p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code></span><span>10</span></div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-title="簽章五障礙">
+  <div class="section-tag">四、為什麼修不好</div>
+  <div class="kicker">PART 4 · WHY NOT FIXED</div>
+  <h1>幫廣播加數位簽章：五個障礙</h1>
+  <div class="grid2">
+    <div class="card">
+      <ol class="small" style="padding-left:1.3em">
+        <li><b>公鑰怎麼給？</b>手機還沒連網就要有正確公鑰。寫進 USIM，換金鑰怎麼辦？由網路下發，第一次怎麼辦？</li>
+        <li><b>撤銷怎麼做？</b>私鑰外洩時，撤銷清單（CRL、OCSP）都要連網才查得到——而這正是被攻擊的環節。</li>
+        <li><b>重放怎麼防？</b>簽章只證明「誰簽的」，不證明「現在」；要時間戳記，但手機的時間本身來自網路。</li>
+        <li><b>容量放得下嗎？</b>簽章加識別碼與時間戳記接近 100 bytes，廣播通道是全細胞共享的稀缺資源。</li>
+        <li><b>驗證來得及嗎？</b>開機時要評估多個候選細胞，逐一驗簽會拖慢連線，低階物聯網裝置更明顯。</li>
+      </ol>
+    </div>
+    <div>
+      <div class="callout warn" style="margin-top:0"><p><b>五個裡面，只有第 4 個和密碼學本身有關。</b></p></div>
+      <div class="card" style="margin-top:14px"><h3>學術界的結論</h3><p class="small">技術上可行，但<b>部署與治理的成本遠高於密碼學本身</b>。</p></div>
+      <div class="card" style="margin-top:14px"><h3>雪上加霜：後量子</h3><p class="small">後量子簽章比 ECC 長得多，會讓「容量放不下」更嚴重。</p></div>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code></span><span>11</span></div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-title="TR 33.809">
+  <div class="section-tag">四、為什麼修不好</div>
+  <div class="kicker">PART 4 · WHY NOT FIXED</div>
+  <h1>標準組織在研究什麼？TR 33.809</h1>
+  <p class="small">3GPP 自 Rel-16 起維護 TR 33.809。它是<b>技術報告（TR）</b>，不是技術規格（TS）：記錄候選方案與分析，<b class="warn">不構成強制要求</b>。</p>
+  <table style="margin-top:10px">
+    <tr><th style="width:22%">候選方案</th><th style="width:50%">代價與限制</th><th>狀態</th></tr>
+    <tr><td>廣播訊息數位簽章</td><td>公鑰散布與撤銷、時間同步、佔廣播容量、手機要能驗證</td><td class="warn">研究中</td></tr>
+    <tr><td>網路端偵測</td><td>只能事後偵測；要建分析平台；覆蓋攻擊不一定露出異常細胞</td><td class="good">已有商用實作</td></tr>
+    <tr><td>選定訊息雜湊保護</td><td>拿到安全上下文後才回溯驗證，只能事後發現；要改協定</td><td class="warn">研究中</td></tr>
+    <tr><td>手機端行為強化</td><td>限制接受未保護的 reject、限制降級、可疑細胞冷卻期；可能誤傷正常網路行為</td><td class="good">部分已納入規格</td></tr>
+  </table>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code></span><span>12</span></div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-title="三個原因">
+  <div class="section-tag">四、為什麼修不好</div>
+  <div class="kicker">PART 4 · WHY NOT FIXED</div>
+  <h1>30 年修不好的三個原因</h1>
+  <div class="grid3">
+    <div class="card">
+      <h3>🥚 結構性</h3>
+      <p class="small">沒有共享金鑰就沒有保護：廣播與初始存取的接收端，是「還沒有任何金鑰的陌生人」。5G 用公鑰解了身分這一半，基地台這一半還沒解。</p>
+    </div>
+    <div class="card">
+      <h3>🏛️ 治理成本</h3>
+      <p class="small">廣播簽章技術可行，卡在公鑰散布、撤銷與時間同步這些全球治理問題；TR 33.809 至今仍非強制規格。</p>
+    </div>
+    <div class="card">
+      <h3>⚖️ 相容與取捨</h3>
+      <p class="small">修 AKA 可連結性要改 USIM 行為，換卡成本極高；網路移除舊制式會影響涵蓋率；資料完整性保護有效能成本，常常沒開。</p>
+    </div>
+  </div>
+  <div class="callout"><p>一句話：<b>假基地台還在，不是因為密碼學不夠強，而是因為「怎麼部署」比「怎麼加密」難得多。</b></p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>SUCI</code><code>5G-AKA</code><code>User-Plane-Integrity</code></span><span>13</span></div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-title="下一步">
+  <div class="section-tag">五、未來與總結</div>
+  <div class="kicker">PART 5 · NEXT</div>
+  <h1>下一步：研究方向與界線</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>🔭 研究方向</h3>
+      <ul class="small">
+        <li><b>AI/ML 異常偵測</b>：即時辨識偽基地台與覆蓋攻擊；難在缺乏公開標註資料、誤報成本</li>
+        <li><b>實體層安全（PLS）</b>：用通道特性產生金鑰；但模型假設在真實環境常不成立</li>
+        <li><b>低層輕量保護</b>：能塞進 DCI／MAC CE 的極短認證碼</li>
+        <li><b>6G</b>：把「認證前保護」放進基礎設計的少數機會之一</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>⚖️ 想動手研究？先守住界線</h3>
+      <ul class="small">
+        <li class="bad">不可對公眾行動網路發射任何訊號——多數法域是刑事犯罪</li>
+        <li class="bad">不可攔截、解碼或記錄他人通訊，即使做得到</li>
+        <li class="warn">只在遮蔽室或用有線連接建立自己的實驗網路</li>
+        <li class="good">發現漏洞走負責任揭露，先通知營運商再公開</li>
+      </ul>
+      <p class="small" style="margin-top:8px"><b>「做得到」與「可以做」是兩件事。</b></p>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>Research-Ethics</code></span><span>14</span></div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-title="總結">
+  <div class="section-tag">五、未來與總結</div>
+  <div class="kicker">SUMMARY</div>
+  <h1>30 年的問題，5G 解了一半</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3 class="good">已經解掉的那一半</h3>
+      <ul class="small">
+        <li>雞生蛋困境的「身分」部分：用公鑰在認證前就把身分加密（SUCI）</li>
+        <li>假基地台偽造不了認證成功（5G-AKA＋Home Control）</li>
+        <li>演算法降級被安全模式命令防住</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="warn">還沒解掉的那一半</h3>
+      <ul class="small">
+        <li>連線前沒有認證「這個基地台」：廣播、Paging、初始訊息、低層控制</li>
+        <li>覆蓋攻擊、跨世代降級、偽造拒絕、側通道與被動追蹤</li>
+        <li>卡在治理與部署成本，不在密碼學</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout"><p>帶走一句話：<b>永遠把無線層當作不可信的通道</b>——需要保密的東西，交給 TLS、加密通訊軟體與 VPN。</p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code><code>SUCI</code><code>Security-Mode-Command</code><code>UE</code></span><span>15</span></div>
+</section>
+</div></div>
+
+<div id="hint">← → 或空白鍵切換 · Home／End 跳到首尾</div>
+<div id="ui">
+  <a href="index.html" title="回到簡報目錄">目錄</a>
+  <button id="prev" aria-label="上一張">←</button>
+  <span id="counter">1 / 15</span>
+  <button id="next" aria-label="下一張">→</button>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var deck = document.getElementById('deck');
+  var counter = document.getElementById('counter');
+  var progress = document.getElementById('progress');
+  var cur = 0;
+
+  function fit(){
+    var s = Math.min(window.innerWidth / 1280, (window.innerHeight - 44) / 720);
+    deck.style.transform = 'scale(' + s + ')';
+  }
+  function show(i){
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    slides[cur].classList.remove('active');
+    cur = i;
+    slides[cur].classList.add('active');
+    counter.textContent = (cur + 1) + ' / ' + slides.length;
+    progress.style.width = ((cur + 1) / slides.length * 100) + '%';
+    var h = '#' + (cur + 1);
+    if (location.hash !== h) history.replaceState(null, '', h);
+    document.title = '假基地台 30 年 · ' + (cur + 1);
+  }
+  function fromHash(){
+    var n = parseInt(location.hash.slice(1), 10);
+    return isNaN(n) ? 0 : n - 1;
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'PageDown': case ' ': case 'Enter': e.preventDefault(); show(cur + 1); break;
+      case 'ArrowLeft': case 'PageUp': case 'Backspace': e.preventDefault(); show(cur - 1); break;
+      case 'Home': e.preventDefault(); show(0); break;
+      case 'End': e.preventDefault(); show(slides.length - 1); break;
+    }
+  });
+  document.getElementById('next').addEventListener('click', function(){ show(cur + 1); });
+  document.getElementById('prev').addEventListener('click', function(){ show(cur - 1); });
+
+  var tx = null;
+  document.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (tx === null) return;
+    var dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+    tx = null;
+  });
+  window.addEventListener('hashchange', function(){ show(fromHash()); });
+  window.addEventListener('resize', fit);
+
+  fit();
+  slides[0].classList.add('active');
+  show(fromHash());
+})();
+</script>
+</body>
+</html>

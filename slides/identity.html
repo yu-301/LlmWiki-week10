@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5G 身分與連線安全</title>
+<meta name="description" content="給完全不懂 5G 的初學者：5G 怎麼保護你的身分與連線安全（內容全部取自本專案 LLM Wiki）">
+<style>
+:root{
+  --bg:#0d1b2a; --panel:#13263a; --panel2:#1b3350; --ink:#eef3f8; --muted:#9fb3c8;
+  --accent:#4cc9f0; --good:#5ad19a; --warn:#ffb84d; --bad:#ff6b6b; --line:#2b4a6b;
+  --font:"Noto Sans TC","Microsoft JhengHei","PingFang TC","Heiti TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);overflow:hidden}
+#viewport{position:fixed;top:0;left:0;right:0;bottom:44px;display:flex;align-items:center;justify-content:center}
+#deck{width:1280px;height:720px;position:relative;transform-origin:center center}
+.slide{position:absolute;inset:0;padding:56px 72px 64px;display:none;flex-direction:column;background:linear-gradient(160deg,#0f2236 0%,#0d1b2a 70%);border-radius:6px}
+.slide.active{display:flex;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.kicker{font-size:18px;letter-spacing:.12em;color:var(--accent);font-weight:700;margin-bottom:10px}
+h1{font-size:46px;line-height:1.25;margin-bottom:22px}
+h2{font-size:24px;color:var(--accent);margin:6px 0 10px}
+p,li{font-size:22px;line-height:1.6}
+ul{padding-left:1.2em}
+li{margin:4px 0}
+b,strong{color:#fff}
+.muted{color:var(--muted)}
+.small{font-size:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:1}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.card h3{font-size:22px;margin-bottom:8px}
+.card p,.card li{font-size:19px;line-height:1.5}
+.tag{display:inline-block;font-size:15px;padding:2px 10px;border-radius:999px;background:var(--panel2);color:var(--muted);margin-right:6px}
+.good{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.callout{border-left:5px solid var(--accent);background:var(--panel);padding:12px 18px;border-radius:0 10px 10px 0;margin-top:14px}
+.callout.warn{border-color:var(--warn)} .callout.bad{border-color:var(--bad)} .callout.good{border-color:var(--good)}
+.flow{display:flex;align-items:stretch;gap:10px;margin:10px 0}
+.flow .step{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:18px;line-height:1.45}
+.flow .arrow{align-self:center;color:var(--accent);font-size:26px}
+.step b{display:block;font-size:19px;margin-bottom:4px;color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:18px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;line-height:1.45}
+th{color:var(--accent);font-weight:700}
+.idbox{display:flex;font-family:Consolas,monospace;font-size:26px;margin:10px 0 6px}
+.idbox span{padding:10px 16px;border:2px solid var(--line)}
+.idbox .clear{background:#1f3b57}
+.idbox .enc{background:#3a2240;color:#ffc6e0}
+.tree{font-family:Consolas,"Noto Sans TC",monospace;font-size:19px;line-height:1.55;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;white-space:pre}
+.src{position:absolute;left:72px;right:72px;bottom:20px;font-size:15px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px;display:flex;justify-content:space-between;gap:20px}
+.src .pages code{color:#cfe8ff;background:var(--panel2);padding:1px 6px;border-radius:4px;margin-right:4px;font-size:14px}
+.cover{justify-content:center}
+.cover h1{font-size:60px}
+.pill-row{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:10px 22px;font-size:22px}
+.section-tag{position:absolute;top:22px;right:72px;font-size:15px;color:var(--muted);letter-spacing:.08em}
+#ui{position:fixed;bottom:10px;right:14px;display:flex;gap:8px;align-items:center;z-index:5;font-family:var(--font)}
+#ui button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:16px;cursor:pointer}
+#ui button:hover{border-color:var(--accent)}
+#ui a{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:16px;text-decoration:none}
+#ui a:hover{border-color:var(--accent)}
+#counter{color:var(--muted);font-size:15px;min-width:56px;text-align:center}
+#progress{position:fixed;top:0;left:0;height:4px;background:var(--accent);transition:width .3s;z-index:5}
+#hint{position:fixed;bottom:12px;left:14px;color:var(--muted);font-size:13px;z-index:5}
+@media (max-width:700px){#hint{display:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="viewport"><div id="deck">
+
+<!-- 1 封面 -->
+<section class="slide cover" data-title="封面">
+  <div class="kicker">給完全不懂 5G 的你</div>
+  <h1>5G 怎麼保護<br>你的身分與連線安全</h1>
+  <p class="muted">手機每天都在跟基地台說話。這份簡報要回答：誰在聽？5G 怎麼擋？還有哪些擋不住？</p>
+  <div class="pill-row">
+    <span class="pill">🪪 藏好你的身分</span>
+    <span class="pill">🤝 手機與網路互相驗證</span>
+    <span class="pill">🔐 把電波鎖起來</span>
+    <span class="pill">⚠️ 還沒做到的事</span>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>overview</code></span><span>← → 鍵切換</span></div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="手機在空中喊話">
+  <div class="section-tag">一、為什麼要在意</div>
+  <div class="kicker">PART 1 · WHY</div>
+  <h1>你的手機，每天都在空中「喊話」</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>有線網路 vs. 無線電波</h3>
+      <p>有線網路的機房鎖著門、光纖埋在地下，外人很難碰到。</p>
+      <p style="margin-top:8px">但手機和基地台之間，是<b>向四面八方傳開的電磁波</b>——任何人只要拿著無線接收機，都收得到。</p>
+    </div>
+    <div class="card">
+      <h3>所以 5G 要做到四件事</h3>
+      <ul>
+        <li><b>聽不懂</b>：別人收到也只是亂碼（加密）</li>
+        <li><b>改不了</b>：被動過手腳一定會被發現（完整性）</li>
+        <li><b>不能重播</b>：錄下來再發一次沒有用（防重送）</li>
+        <li><b>認不出你</b>：不讓旁人知道「是誰」在講話（身分隱私）</li>
+      </ul>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>Air-Interface-Security</code><code>SUCI</code></span><span>2</span></div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="假基地台">
+  <div class="section-tag">一、為什麼要在意</div>
+  <div class="kicker">PART 1 · WHY</div>
+  <h1>假基地台：一個修了三十年的問題</h1>
+  <div class="flow">
+    <div class="step"><b>① 架設</b>攻擊者架一台發射功率比附近合法基地台更強的設備（IMSI Catcher）</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>② 接入</b>手機主動連上這台假基地台</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>③ 索取</b>假基地台送出 Identity Request，要手機報上永久身分</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>④ 追蹤</b>4G 以前，手機會交出<b class="bad">明文 IMSI</b>，攻擊者就能長期追蹤你的行蹤</div>
+  </div>
+  <div class="callout warn">
+    <p><b>為什麼拖了這麼久？雞生蛋、蛋生雞：</b>要加密通訊，手機和網路得先有共享的鑰匙；但要找到你專屬的鑰匙，網路得先知道你是誰。</p>
+  </div>
+  <p class="muted small" style="margin-top:10px">5G 的答案（第 6–7 張）：改用電信商的「公開金鑰」，在還沒認證前就能把身分加密。</p>
+  <div class="src"><span class="pages">對應 wiki：<code>SUPI</code><code>SUCI</code><code>4G-vs-5G-AKA</code><code>overview</code></span><span>3</span></div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="登場角色">
+  <div class="section-tag">二、基本概念</div>
+  <div class="kicker">PART 2 · BASICS</div>
+  <h1>登場角色：一次連線有哪幾方？</h1>
+  <div class="grid4">
+    <div class="card"><h3>📱 你的手機（UE）</h3><p>= 手機本體 <b>ME</b> + <b>USIM</b> 卡。USIM 像護照晶片，保管永久身分與長期金鑰 K，K 永遠不出卡。</p></div>
+    <div class="card"><h3>📡 基地台（gNB）</h3><p>用電波跟手機通訊。負責空中這一段的保護，但<b>看不到</b>手機和核心網之間的訊令。</p></div>
+    <div class="card"><h3>🛂 當地網路<br><span class="small muted">（服務網路）</span></h3><p><b>AMF</b> 是入境櫃台，旁邊坐著海關代表 <b>SEAF</b>（兩者在同一節點）。漫遊時這是「別人家」的網路。</p></div>
+    <div class="card"><h3>🏠 你的電信商<br><span class="small muted">（歸屬網路）</span></h3><p><b>AUSF</b>：最後拍板認證的法官。<br><b>UDM</b>：用戶資料總管，內含解密身分的 <b>SIDF</b> 與保管金鑰 K 的 <b>ARPF</b>。</p></div>
+  </div>
+  <div class="callout"><p>記住一個重點：<b>「當地網路」不一定是你的電信商</b>（例如出國漫遊）。5G 的很多設計，就是不讓當地網路自己說了算。</p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>UE</code><code>USIM</code><code>AMF</code><code>SEAF</code><code>AUSF</code><code>UDM</code><code>SIDF</code><code>ARPF</code><code>NAS-vs-AS-Security</code></span><span>4</span></div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="2G 到 5G">
+  <div class="section-tag">二、基本概念</div>
+  <div class="kicker">PART 2 · BASICS</div>
+  <h1>從 2G 到 5G：每一代補一個洞</h1>
+  <table>
+    <tr><th style="width:12%">世代</th><th style="width:48%">大樓門禁比喻</th><th>背後的安全概念</th></tr>
+    <tr><td>2G</td><td>警衛檢查你的通行證，但你不會檢查警衛是不是真的</td><td>單向認證（網路可被冒充）</td></tr>
+    <tr><td>3G</td><td>你和警衛互對暗號，雙方都確認對方是自己人</td><td>雙向認證（AKA）＋序號防重放</td></tr>
+    <tr><td>4G</td><td>大樓、樓層、房間各用不同鑰匙，丟一把不會全丟</td><td>金鑰階層化、核心網／基地台分層保護</td></tr>
+    <tr><td>5G</td><td>你出示一次性代號，不再大聲報身分證字號；放不放行由你的公司總部決定</td><td>SUCI 身分隱藏、Home Control</td></tr>
+  </table>
+  <div class="callout good"><p>冷知識：<b>5G 沒有發明新的加密演算法</b>——5G 的 NEA1/2/3、NIA1/2/3 與 4G 的對應演算法完全相同。5G 的進步在「架構」：藏身分、讓電信商拍板、資料可加完整性保護。</p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>Cellular-Generations-Security</code></span><span>5</span></div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="SUPI 與 SUCI">
+  <div class="section-tag">三、機制</div>
+  <div class="kicker">機制 ① 藏好身分</div>
+  <h1>身分證字號不能大聲喊：SUPI → SUCI</h1>
+  <div class="grid2">
+    <div>
+      <div class="card"><h3>🪪 SUPI＝你的身分證字號</h3><p>永久、全球唯一，取代 4G 的 IMSI。換手機不會變，所以<b>絕不能讓旁人聽到</b>。</p></div>
+      <div class="card" style="margin-top:14px"><h3>🎫 SUCI＝一次性號碼牌</h3><p>用電信商預先寫在 USIM 裡的<b>公開金鑰</b>把 SUPI 加密。每次都長得不一樣，抄下來也猜不出是誰。</p></div>
+    </div>
+    <div class="card">
+      <h3>只加密「你是誰」那一段</h3>
+      <div class="idbox"><span class="clear">466</span><span class="clear">97</span><span class="enc">123456789</span></div>
+      <p class="small muted">國碼 MCC ｜ 電信商 MNC ｜ 用戶號 MSIN（例：466 是台灣）</p>
+      <p style="margin-top:10px"><span class="tag">明文</span>國碼＋電信商代碼：當地網路要靠它知道該找哪一家電信商。</p>
+      <p><span class="tag">加密</span>用戶號：真正代表「你」的部分。</p>
+      <p class="warn small" style="margin-top:8px">取捨：攻擊者知道「有一位某國某電信的用戶在這裡」，但不知道是誰。</p>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>SUPI</code><code>SUCI</code><code>USIM</code></span><span>6</span></div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="SUCI 怎麼做">
+  <div class="section-tag">三、機制</div>
+  <div class="kicker">機制 ① 藏好身分</div>
+  <h1>SUCI 是怎麼做出來的？（ECIES 白話版）</h1>
+  <div class="flow">
+    <div class="step"><b>① 拋棄式鑰匙</b>每次都產生一組全新的臨時金鑰</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>② 拼出密碼</b>用臨時鑰匙＋電信商公鑰，算出一把雙方都能得到的對稱密碼</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>③ 上鎖</b>用 AES 加密用戶號</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>④ 貼封條</b>加上 MAC 標籤，防止密文被竄改</div>
+  </div>
+  <div class="grid2" style="margin-top:6px">
+    <div class="card"><h3>為什麼每次都換鑰匙？</h3><p>這是<b>不可連結性</b>的關鍵：若重用臨時金鑰，同一個人每次產生的 SUCI 會一樣，追蹤問題就沒解決。</p></div>
+    <div class="card"><h3>誰能解開？</h3><p>只有你電信商 UDM 裡的 <b>SIDF</b>，用私鑰還原。<br><span class="warn">若私鑰外洩：</span>過去與未來的 SUCI 都能被還原，隱私退回 4G 水準——但<b>認證仍然安全</b>，因為認證靠的是另一把金鑰 K。</p></div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>ECIES</code><code>SIDF</code><code>SUCI</code></span><span>7</span></div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="5G-AKA">
+  <div class="section-tag">三、機制</div>
+  <div class="kicker">機制 ② 互相驗明正身</div>
+  <h1>5G-AKA：手機與網路互相考試</h1>
+  <div class="flow">
+    <div class="step"><b>階段一：母國出考卷</b>你的電信商產生考題（RAND、AUTN），只把<b>答案的雜湊</b>交給當地網路，真正答案自己留著。</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>階段二：雙向對暗號</b>手機的 USIM 先驗 AUTN：算得出正確 MAC＝對方真的持有 K（<b>手機驗網路</b>）；再查序號 SQN，擋掉重播。接著回傳答案 RES*。</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>階段三：母國閱卷</b>你的電信商比對 RES* 與正確答案（<b>網路驗手機</b>），成功才發下後續要用的金鑰。</div>
+  </div>
+  <div class="grid2" style="margin-top:8px">
+    <div class="card"><h3>🔑 只交答案，不交鑰匙</h3><p>手機回傳的只有 RES*，<b>從不在網路上傳送任何金鑰</b>；長期金鑰 K 只存在 USIM 與電信商的 ARPF。</p></div>
+    <div class="card"><h3>🚫 假基地台會露餡</h3><p>假基地台沒有 K，算不出正確的 MAC，手機會回報「MAC failure」並拒絕繼續。</p></div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>5G-AKA</code><code>UE</code><code>USIM</code><code>ARPF</code></span><span>8</span></div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="Home Control">
+  <div class="section-tag">三、機制</div>
+  <div class="kicker">機制 ② 互相驗明正身</div>
+  <h1>誰說了算？Home Control</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3 class="bad">4G：當地網路自己說了算</h3>
+      <p>當地網路（MME）拿到考題後<b>自己比對就結案</b>，你的電信商不知道認證是否真的成功。</p>
+      <p class="small warn" style="margin-top:8px">漏洞：不肖的當地網路可以宣稱「用戶已認證」並向你的電信商請款，但你其實根本不在那個國家（漫遊詐欺）。</p>
+    </div>
+    <div class="card">
+      <h3 class="good">5G：你的電信商拍板</h3>
+      <ul>
+        <li>當地網路的 <b>SEAF</b> 用「答案的雜湊」先比對一次，得到自己的判斷依據</li>
+        <li>手機的 RES* 一定會送回你的電信商，由 <b>AUSF</b> 跟真正答案比對——<b>只有 AUSF 說成功，才算成功</b></li>
+        <li>成功之前，當地網路拿不到你的真實身分 SUPI，也拿不到錨點金鑰</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout"><p>一句話：<b>SEAF 的比對是「效率」，AUSF 的比對是「權威」。</b></p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>AUSF</code><code>SEAF</code><code>4G-vs-5G-AKA</code><code>5G-AKA</code></span><span>9</span></div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="金鑰樹">
+  <div class="section-tag">三、機制</div>
+  <div class="kicker">機制 ③ 一把鑰匙長成一棵樹</div>
+  <h1>金鑰階層：不要一把萬能鑰匙用到底</h1>
+  <div class="grid2">
+    <div class="tree">K（USIM／ARPF，永不外傳）
+ └ K_AUSF  你的電信商
+    └ K_SEAF  當地網路的錨點
+       └ K_AMF  核心網入口
+          ├ K_NASenc / K_NASint
+          │   保護手機↔核心網訊令
+          └ K_gNB  基地台
+             ├ K_RRCenc / K_RRCint
+             └ K_UPenc / K_UPint
+                 保護空中的訊令與資料</div>
+    <div>
+      <div class="card"><h3>為什麼要分這麼多層？</h3>
+        <ul class="small">
+          <li><b>金鑰分離</b>：被攻破的基地台，不該連核心網訊令都洩漏</li>
+          <li><b>生命週期不同</b>：基地台金鑰每次換手都要換，核心網金鑰相對穩定</li>
+          <li><b>信任邊界不同</b>：每一層只拿到它該拿的那一把</li>
+        </ul></div>
+      <div class="card" style="margin-top:12px"><h3>每往下一層，就多綁一個「情境」</h3>
+        <p class="small">服務網路名稱、用戶身分、NAS 計數、演算法、目標細胞……偷到某一把鑰匙，也<b>搬不到別的情境使用</b>。換基地台時還能用 NH 鏈，讓舊基地台算不出新鑰匙（像搬家換鎖）。</p></div>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>Key-Hierarchy</code></span><span>10</span></div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-title="鎖住電波">
+  <div class="section-tag">三、機制</div>
+  <div class="kicker">機制 ④ 把電波鎖起來</div>
+  <h1>先約好密碼本，再把每個封包鎖好</h1>
+  <div class="flow">
+    <div class="step"><b>① 手機宣告</b>「我支援 1、2、3 號演算法」（這時還沒保護，可能被竄改）</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>② 網路挑選並蓋章</b>安全模式命令（SMC）裡<b>原封不動重播</b>手機的清單，並加上完整性保護</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>③ 先驗章、再上鎖</b>手機確認章是真的、清單沒被改，才開始加密；被改過就拒絕</div>
+  </div>
+  <div class="grid3" style="margin-top:8px">
+    <div class="card"><h3>🔒 保險箱</h3><p>NEA 加密：偷聽只看到亂碼</p></div>
+    <div class="card"><h3>🏷️ 防偽封條</h3><p>NIA 完整性：32-bit 標籤，改一個位元就被丟掉</p></div>
+    <div class="card"><h3>🔢 流水號</h3><p>COUNT 計數器：錄下來重播會被認出是舊的</p></div>
+  </div>
+  <p class="small muted" style="margin-top:10px">兩層保護：<b>NAS</b>（手機↔核心網 AMF，穿過基地台）與 <b>AS</b>（手機↔基地台，只管空中這一段）。基地台被入侵，也讀不到 NAS 訊令。</p>
+  <div class="src"><span class="pages">對應 wiki：<code>Security-Mode-Command</code><code>UE</code><code>Air-Interface-Security</code><code>NAS-vs-AS-Security</code><code>AMF</code></span><span>11</span></div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-title="空窗">
+  <div class="section-tag">四、現實限制</div>
+  <div class="kicker">限制 ① 連上之前的空窗</div>
+  <h1>有了鑰匙之前，什麼都保護不了</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>這些訊息「不能保護」</h3>
+      <ul class="small">
+        <li>基地台的廣播（MIB、SIB）：要給還沒註冊的手機看</li>
+        <li>呼叫訊息（Paging）：在連線建立之前送出</li>
+        <li>隨機存取與最初的連線建立訊息：雙方還沒有金鑰</li>
+      </ul>
+      <p class="small warn" style="margin-top:8px">攻擊者可以：偽造廣播、用較強訊號「覆蓋」合法訊息、偽造拒絕訊息讓手機斷線。</p>
+    </div>
+    <div class="card">
+      <h3>側通道：不破解也能定位你</h3>
+      <p class="small">攻擊者對你的手機<b>撥打又快速掛斷</b>，觸發呼叫訊息，再觀察哪個時段出現 Paging，就能判斷你是否在附近。</p>
+      <p class="small muted" style="margin-top:6px">密碼學保護的是「內容」，不是「有沒有發生」。</p>
+    </div>
+  </div>
+  <div class="callout warn"><p class="small"><b>為什麼不幫廣播加數位簽章？</b> 手機還沒連網，公鑰要怎麼先拿到？私鑰外洩時，撤銷清單要連網才查得到；廣播頻寬也很珍貴。研究結論：技術可行，但部署與治理成本遠高於密碼學本身。</p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>False-Base-Station-Defenses</code></span><span>12</span></div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-title="規格不等於部署">
+  <div class="section-tag">四、現實限制</div>
+  <div class="kicker">限制 ② 規格寫了 ≠ 真的有開</div>
+  <h1>能力存在，不等於已經啟用</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>上鎖卻沒封條的包裹</h3>
+      <p class="small">4G 的上網資料只有加密、沒有完整性保護。攻擊者看不懂內容，卻能<b>翻轉特定位元</b>——2019 年的 aLTEr 攻擊就這樣竄改 DNS，把用戶導向惡意伺服器。</p>
+      <p class="small" style="margin-top:8px">5G 加入了使用者資料的完整性保護，但<b>是否啟用由營運商政策決定</b>。量測研究指出商用網路普遍沒開：每個封包都要算標籤，有效能成本。</p>
+    </div>
+    <div class="card">
+      <h3>手機顯示「5G」，就是 5G 安全嗎？</h3>
+      <p class="small">依 GSMA 定義，非獨立組網（NSA）下只要在 4G＋5G 雙連結區域，手機就顯示「5G」；講義指出<b>台灣業者都以 NSA 開台</b>，而 NSA 的控制由 <b>4G 核心網</b>負責。</p>
+      <p class="small warn" style="margin-top:8px">推論：NSA 下，SUCI、Home Control 這些 5G 核心網機制<b>可能沒有用上</b>（相關 4G 規格不在 wiki 來源內，尚未逐字查證）。</p>
+    </div>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>User-Plane-Integrity</code><code>NSA-vs-SA-Security</code></span><span>13</span></div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-title="密碼學之外">
+  <div class="section-tag">四、現實限制</div>
+  <div class="kicker">限制 ③ 密碼學管不到的地方</div>
+  <h1>最弱的一環，常常不在空中</h1>
+  <div class="grid3">
+    <div class="card"><h3>📞 SIM Swap</h3><p class="small">用社交工程騙電信商幫你「換卡」，完全不碰密碼學。防禦靠強化用戶身分驗證（MFA）。</p></div>
+    <div class="card"><h3>🏢 SK Telecom 外洩</h3><p class="small">南韓電信龍頭內部伺服器被植入惡意程式，駭客<b>潛伏近 3 年</b>，外流檔案含 <b>26,957,749 個 IMSI</b>；公司提供所有用戶換新 SIM 卡。</p></div>
+    <div class="card"><h3>🔑 私鑰外洩</h3><p class="small">電信商解密 SUCI 的私鑰一旦外洩，過去與未來的 SUCI 都能被還原。密碼學的前提是：金鑰沒被偷。</p></div>
+  </div>
+  <div class="callout good">
+    <p><b>你可以自己做的事：</b>開啟手機的「僅 5G」模式（多數預設不開）、關閉 2G；永遠把無線層當作不可信的通道，使用 TLS／HTTPS、加密通訊軟體與 VPN。</p>
+  </div>
+  <div class="src"><span class="pages">對應 wiki：<code>USIM</code><code>SIDF</code><code>UE</code><code>False-Base-Station-Defenses</code></span><span>14</span></div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-title="總結">
+  <div class="section-tag">五、總結</div>
+  <div class="kicker">SUMMARY</div>
+  <h1>四道防線，三個提醒</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3 class="good">5G 做到的四道防線</h3>
+      <ul class="small">
+        <li><b>藏身分</b>：SUPI 加密成一次性的 SUCI</li>
+        <li><b>互相驗證</b>：5G-AKA，手機也驗網路</li>
+        <li><b>電信商拍板</b>：Home Control，當地網路不能自說自話</li>
+        <li><b>鎖電波</b>：金鑰樹＋加密＋完整性＋流水號</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="warn">還要記得的三個提醒</h3>
+      <ul class="small">
+        <li><b>空窗</b>：連上之前的廣播與呼叫訊息無法保護</li>
+        <li><b>規格 ≠ 部署</b>：完整性保護可能沒開；NSA 下由 4G 核心網控制，5G 核心網的安全機制可能沒用上</li>
+        <li><b>人與流程</b>：SIM Swap、伺服器被駭、金鑰外洩</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout"><p>帶走一句話：<b>5G 讓你的身分不再裸奔、讓你的電信商自己拍板、讓電波上鎖——但無線層仍要當作不可信的通道。</b></p></div>
+  <div class="src"><span class="pages">對應 wiki：<code>overview</code>（並總結第 2–14 張各頁）</span><span>15</span></div>
+</section>
+
+</div></div>
+
+<div id="hint">← → 或空白鍵切換 · Home／End 跳到首尾</div>
+<div id="ui">
+  <a href="index.html" title="回到簡報目錄">目錄</a>
+  <button id="prev" aria-label="上一張">←</button>
+  <span id="counter">1 / 15</span>
+  <button id="next" aria-label="下一張">→</button>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var deck = document.getElementById('deck');
+  var counter = document.getElementById('counter');
+  var progress = document.getElementById('progress');
+  var cur = 0;
+
+  function fit(){
+    var s = Math.min(window.innerWidth / 1280, (window.innerHeight - 44) / 720);
+    deck.style.transform = 'scale(' + s + ')';
+  }
+  function show(i){
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    slides[cur].classList.remove('active');
+    cur = i;
+    slides[cur].classList.add('active');
+    counter.textContent = (cur + 1) + ' / ' + slides.length;
+    progress.style.width = ((cur + 1) / slides.length * 100) + '%';
+    var h = '#' + (cur + 1);
+    if (location.hash !== h) history.replaceState(null, '', h);
+    document.title = '5G 身分與連線安全 · ' + (cur + 1);
+  }
+  function fromHash(){
+    var n = parseInt(location.hash.slice(1), 10);
+    return isNaN(n) ? 0 : n - 1;
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'PageDown': case ' ': case 'Enter': e.preventDefault(); show(cur + 1); break;
+      case 'ArrowLeft': case 'PageUp': case 'Backspace': e.preventDefault(); show(cur - 1); break;
+      case 'Home': e.preventDefault(); show(0); break;
+      case 'End': e.preventDefault(); show(slides.length - 1); break;
+    }
+  });
+  document.getElementById('next').addEventListener('click', function(){ show(cur + 1); });
+  document.getElementById('prev').addEventListener('click', function(){ show(cur - 1); });
+
+  var tx = null;
+  document.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (tx === null) return;
+    var dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+    tx = null;
+  });
+  window.addEventListener('hashchange', function(){ show(fromHash()); });
+  window.addEventListener('resize', fit);
+
+  fit();
+  slides[0].classList.add('active');
+  show(fromHash());
+})();
+</script>
+</body>
+</html>

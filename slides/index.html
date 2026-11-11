@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5G 安全教學簡報</title>
+<meta name="description" content="兩份給初學者的 5G 安全教學簡報目錄：身分與連線安全、假基地台為什麼修了 30 年。內容全部取自本專案 LLM Wiki。">
+<style>
+:root{
+  --bg:#0d1b2a; --panel:#13263a; --panel2:#1b3350; --ink:#eef3f8; --muted:#9fb3c8;
+  --accent:#4cc9f0; --good:#5ad19a; --warn:#ffb84d; --line:#2b4a6b;
+  --font:"Noto Sans TC","Microsoft JhengHei","PingFang TC","Heiti TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:linear-gradient(160deg,#0f2236 0%,#0d1b2a 70%) fixed;color:var(--ink);font-family:var(--font)}
+main{max-width:1040px;margin:0 auto;padding:56px 16px 40px}
+.kicker{font-size:15px;letter-spacing:.12em;color:var(--accent);font-weight:700;margin-bottom:10px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.25;margin-bottom:14px}
+.lead{color:var(--muted);font-size:18px;line-height:1.7;max-width:760px}
+.decks{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;margin-top:36px}
+.deck{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px 26px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s}
+.deck:hover,.deck:focus-visible{border-color:var(--accent);transform:translateY(-3px);outline:none}
+.deck .no{font-size:14px;color:var(--accent);font-weight:700;letter-spacing:.08em}
+.deck h2{font-size:26px;line-height:1.35;margin:8px 0 12px}
+.deck p{font-size:17px;line-height:1.65;color:var(--muted)}
+.deck ul{margin:14px 0 0 1.1em;font-size:16px;line-height:1.7}
+.deck .go{margin-top:auto;padding-top:18px;color:var(--accent);font-weight:700;font-size:17px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tag{font-size:13px;padding:3px 10px;border-radius:999px;background:var(--panel2);color:var(--muted)}
+.note{margin-top:34px;background:var(--panel);border-left:5px solid var(--good);border-radius:0 10px 10px 0;padding:16px 20px;font-size:16px;line-height:1.7;color:var(--muted)}
+.note b{color:var(--ink)}
+.note a{color:var(--accent)}
+footer{margin-top:28px;font-size:14px;color:var(--muted)}
+kbd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">5G 資通安全 · 生成式 AI 課程作業</div>
+  <h1>5G 安全教學簡報</h1>
+  <p class="lead">兩份給完全不懂 5G 的初學者的簡報。建議依序觀看：第一份建立基本觀念，第二份從假基地台的角度往深處挖。每張投影片右下角都標註它取材的 wiki 頁面。</p>
+
+  <div class="decks">
+    <a class="deck" href="identity.html">
+      <span class="no">第 1 份</span>
+      <h2>5G 怎麼保護你的身分與連線安全</h2>
+      <p>從「手機每天在空中喊話」出發，認識 5G 的四道防線，以及它還沒做到的事。</p>
+      <ul>
+        <li>SUPI → SUCI：把身分證字號藏起來</li>
+        <li>5G-AKA 與 Home Control：互相驗證、電信商拍板</li>
+        <li>金鑰階層與空中介面加密</li>
+        <li>現實限制：空窗、部署落差、人為漏洞</li>
+      </ul>
+      <div class="meta"><span class="tag">15 張</span><span class="tag">入門</span></div>
+      <span class="go">開始觀看 →</span>
+    </a>
+    <a class="deck" href="fake-bts.html">
+      <span class="no">第 2 份</span>
+      <h2>假基地台：為什麼這個問題修了 30 年？</h2>
+      <p>延伸第一份：5G 解了「你是誰」，卻還沒解「這個基地台是不是真的」。</p>
+      <ul>
+        <li>安全分階段打開：空窗到底在哪裡</li>
+        <li>攻擊工具箱：訊號覆蓋、降級四型、側門、低層攻擊</li>
+        <li>為什麼修不好：廣播簽章五障礙、TR 33.809</li>
+        <li>研究方向與倫理界線</li>
+      </ul>
+      <div class="meta"><span class="tag">15 張</span><span class="tag">進階</span><span class="tag">建議先看第 1 份</span></div>
+      <span class="go">開始觀看 →</span>
+    </a>
+  </div>
+
+  <div class="note">
+    <b>操作方式：</b><kbd>←</kbd> <kbd>→</kbd> 或空白鍵切換，<kbd>Home</kbd>／<kbd>End</kbd> 跳到首尾，網址加 <kbd>#7</kbd> 可直接開第 7 張；手機可左右滑動。<br>
+    <b>內容來源：</b>兩份簡報的內容只取自本專案的 LLM Wiki（以 3GPP TS 33.501 Rel-18 與課程講義為基礎），每張投影片對應的 wiki 頁面與查核結果見 <a href="slide-wiki-map.md">投影片 → wiki 對照表</a>。
+  </div>
+  <footer>LLM Wiki Notes · 5G Network Security</footer>
+</main>
+</body>
+</html>
